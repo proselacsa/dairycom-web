@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +10,9 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
@@ -39,7 +41,6 @@
 
     <script type="text/babel">
         const { useState, useEffect } = React;
-        const API_BASE_URL = "https://dairycom-api.onrender.com"; 
 
         const App = () => {
             const [currentPage, setCurrentPage] = useState('home');
@@ -85,31 +86,50 @@
                                     </div>
                                 </div>
                                 
-                                {/* Desktop Menu */}
                                 <div className="hidden lg:flex space-x-6 items-center font-medium text-sm">
                                     <button onClick={() => setCurrentPage('home')} className={`hover:text-dairy-green transition-colors ${currentPage==='home'?'text-dairy-green':''}`}>Inicio</button>
+                                    <button onClick={() => setCurrentPage('nosotros')} className={`hover:text-dairy-green transition-colors ${currentPage==='nosotros'?'text-dairy-green':''}`}>Nosotros</button>
                                     <button onClick={() => setCurrentPage('productos')} className={`hover:text-dairy-green transition-colors ${currentPage==='productos'?'text-dairy-green':''}`}>Catálogo</button>
-                                    <button onClick={() => openModal('cotizar')} className="bg-dairy-green text-white px-5 py-2 rounded shadow hover:bg-green-600 transition flex items-center">
+                                    <button onClick={() => setCurrentPage('mercado')} className={`hover:text-dairy-green transition-colors ${currentPage==='mercado'?'text-dairy-green':''}`}>Tendencias</button>
+                                    <button onClick={() => setCurrentPage('academia')} className={`hover:text-dairy-green transition-colors ${currentPage==='academia'?'text-dairy-green':''}`}>Multimedia</button>
+                                    <button onClick={() => setCurrentPage('envios')} className={`hover:text-dairy-green transition-colors ${currentPage==='envios'?'text-dairy-green':''}`}>Envíos</button>
+                                    <button onClick={() => setCurrentPage('contacto')} className={`hover:text-dairy-green transition-colors ${currentPage==='contacto'?'text-dairy-green':''}`}>Contacto</button>
+                                    <button onClick={() => setCurrentPage('comprar')} className="bg-dairy-green text-white px-5 py-2 rounded shadow hover:bg-green-600 transition flex items-center">
                                         <i className="ph ph-shopping-cart mr-2 text-lg"></i> Comprar
                                     </button>
+                                </div>
+
+                                <div className="lg:hidden flex items-center">
+                                    <button className="text-white p-2" onClick={() => showToast("Menú móvil activo")}><i className="ph ph-list text-2xl"></i></button>
                                 </div>
                             </div>
                         </div>
                     </nav>
 
-                    {/* Main Content */}
                     <main className="flex-grow">
                         {currentPage === 'home' && <Home setCurrentPage={setCurrentPage} openModal={openModal} />}
-                        {currentPage === 'productos' && <Productos openModal={openModal} setCurrentPage={setCurrentPage} />}
+                        {currentPage === 'nosotros' && <Nosotros />}
+                        {currentPage === 'productos' && <Productos openModal={openModal} />}
+                        {currentPage === 'mercado' && <Observatorio />}
+                        {currentPage === 'academia' && <Academia />}
+                        {currentPage === 'envios' && <Envios showToast={showToast} />}
+                        {currentPage === 'contacto' && <Contacto showToast={showToast} />}
                         {currentPage === 'comprar' && <Comprar showToast={showToast} />}
                     </main>
 
-                    {/* Footer */}
                     <footer className="bg-gray-900 text-gray-300 py-12">
                         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
                             <div>
                                 <h3 className="text-white text-xl font-bold mb-4">DAIRYCOM</h3>
                                 <p className="text-sm text-gray-400">Plataforma digital para la comercialización de insumos lácteos a menudeo y medio mayoreo, respaldada por Grupo PROSELACSA.</p>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-semibold mb-4">Secciones</h4>
+                                <ul className="space-y-2 text-sm text-gray-400">
+                                    <li><button onClick={()=>setCurrentPage('nosotros')} className="hover:text-white">Nuestra Historia</button></li>
+                                    <li><button onClick={()=>setCurrentPage('productos')} className="hover:text-white">Catálogo de Productos</button></li>
+                                    <li><button onClick={()=>setCurrentPage('mercado')} className="hover:text-white">Observatorio de Precios</button></li>
+                                </ul>
                             </div>
                             <div>
                                 <h4 className="text-white font-semibold mb-4">Contacto</h4>
@@ -119,12 +139,23 @@
                                     <li className="flex items-center"><i className="ph ph-phone mr-2 text-lg text-dairy-green"></i> 479 104 5539</li>
                                 </ul>
                             </div>
+                            <div>
+                                <h4 className="text-white font-semibold mb-4">Corporativo</h4>
+                                <ul className="space-y-2 text-sm text-gray-400">
+                                    <li><a href="https://www.proselacsa.com" target="_blank" className="hover:text-white flex items-center"><i className="ph ph-globe mr-2"></i> www.proselacsa.com</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="max-w-7xl mx-auto px-4 mt-8 pt-8 border-t border-gray-800 text-sm text-gray-500 text-center">
+                            © 2026 DAIRYCOM - Grupo PROSELACSA. Todos los derechos reservados.
                         </div>
                     </footer>
 
-                    {/* Botón Flotante WhatsApp */}
                     <a href="https://wa.me/524791045539?text=Hola,%20quiero%20información%20sobre%20insumos%20lácteos" target="_blank" className="fixed bottom-6 right-6 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:bg-[#128C7E] transition-all z-50 flex items-center group cursor-pointer border-2 border-white ring-4 ring-[#25D366]/50 animate-bounce">
                         <i className="ph ph-whatsapp text-4xl"></i>
+                        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 ease-in-out whitespace-nowrap group-hover:ml-3 font-bold text-base">
+                            Hablar con un especialista
+                        </span>
                     </a>
 
                     {modalConfig.isOpen && <LeadModal closeModal={() => setModalConfig({ ...modalConfig, isOpen: false })} initialTab={modalConfig.activeTab} showToast={showToast} />}
@@ -140,16 +171,15 @@
 
         const Home = ({ setCurrentPage, openModal }) => (
             <div className="fade-in">
-                {/* Ticker Superior */}
                 <div className="bg-gray-900 text-blue-200 text-xs py-2 px-4 border-b border-gray-800 overflow-x-auto whitespace-nowrap">
                     <div className="max-w-7xl mx-auto flex justify-between items-center space-x-8">
-                        <span className="flex items-center"><i className="ph ph-pulse text-dairy-green mr-1.5 animate-pulse"></i> <strong>GDT Index:</strong> Estable</span>
-                        <span className="flex items-center text-green-400"><i className="ph ph-currency-circle-dollar mr-1.5"></i> <strong>Cotización:</strong> MXN (Pesos)</span>
+                        <span className="flex items-center"><i className="ph ph-pulse text-dairy-green mr-1.5 animate-pulse"></i> <strong>GDT Index (Event 406):</strong> 3,979 USD/MT (-2.8%)</span>
+                        <span className="flex items-center"><i className="ph ph-chart-line-up text-dairy-accent mr-1.5"></i> <strong>CME Block Cheese:</strong> $70.00 MXN/kg</span>
+                        <span className="flex items-center text-green-400"><i className="ph ph-currency-circle-dollar mr-1.5"></i> <strong>USD/MXN:</strong> 19.50 (Google Finance)</span>
                         <span className="flex items-center"><i className="ph ph-factory text-blue-400 mr-1.5"></i> <strong>CEDIS León:</strong> Operando con normalidad</span>
                     </div>
                 </div>
 
-                {/* Hero */}
                 <div className="bg-dairy-blue text-white relative overflow-hidden">
                     <div className="absolute inset-0 opacity-25 bg-[url('https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center"></div>
                     <div className="absolute inset-0 bg-gradient-to-r from-dairy-blue via-dairy-blue/95 to-dairy-blue/70"></div>
@@ -160,41 +190,181 @@
                                 <i className="ph ph-lightning text-sm"></i>
                                 <span>Plataforma Inteligente B2B | A member of Grupo Proselacsa</span>
                             </div>
+                            
                             <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
                                 La Inteligencia y el Suministro Confiable de Insumos Lácteos en México
                             </h1>
+                            
                             <p className="text-lg md:text-xl font-light mb-10 text-gray-300 leading-relaxed">
-                                Compra leche en polvo a menudeo y medio mayoreo (presentación en sacos de 25 kg) con disponibilidad inmediata desde nuestro CEDIS en León, Gto. 
+                                Compra leche en polvo, sueros y grasas lácteas a menudeo y medio mayoreo con disponibilidad inmediata desde nuestro CEDIS en León, Gto. 
                             </p>
+                            
                             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
-                                <button onClick={() => setCurrentPage('productos')} className="bg-dairy-green text-white px-8 py-4 rounded-lg font-bold hover:bg-green-600 transition shadow-lg flex items-center justify-center text-lg border-2 border-dairy-green">
-                                    <i className="ph ph-shopping-cart mr-2 text-2xl"></i> Ver Inventario en Vivo
+                                <button onClick={() => openModal('cotizar')} className="bg-dairy-green text-white px-8 py-4 rounded-lg font-bold hover:bg-green-600 transition shadow-lg flex items-center justify-center text-lg border-2 border-dairy-green">
+                                    <i className="ph ph-shopping-cart mr-2 text-2xl"></i> Solicitar Cotización (Stock)
+                                </button>
+                                <button onClick={() => openModal('sugerir')} className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white hover:text-dairy-blue transition shadow-lg flex items-center justify-center text-lg">
+                                    <i className="ph ph-lightbulb mr-2 text-2xl"></i> Proponer Nuevos Insumos
                                 </button>
                             </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-blue-900/60">
+                                <div className="flex items-center space-x-3">
+                                    <i className="ph ph-shield-check text-2xl text-dairy-green"></i>
+                                    <span className="text-xs text-gray-300 font-medium">Insumos Grado Alimenticio (Normas NOM y COA)</span>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                    <i className="ph ph-map-pin text-2xl text-dairy-accent"></i>
+                                    <span className="text-xs text-gray-300 font-medium">CEDIS Estratégico en León (Bajío y Los Altos)</span>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                    <i className="ph ph-cpu text-2xl text-blue-400"></i>
+                                    <span className="text-xs text-gray-300 font-medium">Sincronización Odoo ERP en Tiempo Real</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white py-12 border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                        <div className="p-4 cursor-pointer group rounded-lg hover:bg-gray-50 transition" onClick={() => setCurrentPage('mercado')}>
+                            <i className="ph ph-trend-up text-4xl text-dairy-blue mb-2 group-hover:text-dairy-green transition"></i>
+                            <h3 className="font-semibold text-gray-800">Precios de Mercado</h3>
+                            <p className="text-xs text-gray-500 mt-1">GDT & CME</p>
+                        </div>
+                        <div className="p-4 cursor-pointer group rounded-lg hover:bg-gray-50 transition" onClick={() => setCurrentPage('envios')}>
+                            <i className="ph ph-truck text-4xl text-dairy-blue mb-2 group-hover:text-dairy-green transition"></i>
+                            <h3 className="font-semibold text-gray-800">Cotizar Envíos</h3>
+                            <p className="text-xs text-gray-500 mt-1">Logística especializada</p>
+                        </div>
+                        <div className="p-4 cursor-pointer group rounded-lg hover:bg-gray-50 transition" onClick={() => setCurrentPage('academia')}>
+                            <i className="ph ph-youtube-logo text-4xl text-dairy-blue mb-2 group-hover:text-red-600 transition"></i>
+                            <h3 className="font-semibold text-gray-800">Academia / Videos</h3>
+                            <p className="text-xs text-gray-500 mt-1">Aplicaciones y Corporativo</p>
+                        </div>
+                        <div className="p-4 cursor-pointer group rounded-lg hover:bg-gray-50 transition" onClick={() => setCurrentPage('contacto')}>
+                            <i className="ph ph-headset text-4xl text-dairy-blue mb-2 group-hover:text-dairy-green transition"></i>
+                            <h3 className="font-semibold text-gray-800">Asesoría Técnica</h3>
+                            <p className="text-xs text-gray-500 mt-1">Ingenieros de alimentos</p>
                         </div>
                     </div>
                 </div>
             </div>
         );
 
-        /* SECCIÓN: PRODUCTOS CON CONEXIÓN ODOO VÍA API */
-        const Productos = ({ openModal, setCurrentPage }) => {
+        const Nosotros = () => (
+            <div className="py-16 bg-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold text-dairy-blue mb-4">El Respaldo de un Líder</h2>
+                    <p className="text-xl text-gray-600 max-w-3xl mx-auto">Conoce cómo DAIRYCOM se integra al ecosistema de Grupo PROSELACSA para garantizar tu suministro.</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-16 items-start mb-16">
+                    <div>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-4">Evolución y Respaldo Corporativo</h3>
+                        <p className="text-gray-600 mb-6 leading-relaxed">
+                            Grupo Proselacsa cuenta con una trayectoria consolidada a través de sus unidades originales: <strong>Comercio Industrial y Logística</strong>. Hoy, frente a la evolución del mercado y la necesidad de abastecimiento ágil, nace nuestra nueva <strong>División Comercial Digital: DAIRYCOM</strong>.
+                        </p>
+                        
+                        <a href="./Brochure_Proselacsa.pdf" download="Brochure_Proselacsa.pdf" className="inline-flex items-center bg-dairy-blue text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition font-bold shadow-md mb-8">
+                            <i className="ph ph-download-simple mr-2 text-xl"></i> Descargar Brochure Corporativo
+                        </a>
+
+                        <div className="space-y-4">
+                            <div className="flex">
+                                <i className="ph ph-target text-dairy-green text-2xl mr-4 mt-1"></i>
+                                <div>
+                                    <h4 className="font-bold text-gray-800">Misión</h4>
+                                    <p className="text-gray-600 text-sm">Proveer insumos lácteos de grado internacional con disponibilidad inmediata, optimizando los costos de producción a menudeo y medio mayoreo.</p>
+                                </div>
+                            </div>
+                            <div className="flex">
+                                <i className="ph ph-eye text-dairy-green text-2xl mr-4 mt-1"></i>
+                                <div>
+                                    <h4 className="font-bold text-gray-800">Visión</h4>
+                                    <p className="text-gray-600 text-sm">Ser la plataforma digital B2B líder en inteligencia de mercado y suministro de sólidos lácteos en México.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 p-8 rounded-xl border border-gray-200 shadow-inner">
+                        <h4 className="text-center font-bold text-gray-500 mb-8 uppercase tracking-widest text-sm">Ecosistema Grupo Proselacsa</h4>
+                        <div className="flex flex-col items-center space-y-4">
+                            <a href="https://www.proselacsa.com" target="_blank" className="bg-dairy-blue text-white w-full py-4 rounded-lg text-center font-bold shadow-md hover:bg-blue-900 transition block">
+                                Grupo PROSELACSA
+                            </a>
+                            <i className="ph ph-arrow-down text-gray-400 text-2xl"></i>
+                            <div className="grid grid-cols-2 gap-4 w-full">
+                                <a href="https://www.proselacsa.com/index.php?vw=1440&vh=731&v0=&v1=188&v1b=0&v2=esp&v3=0&v4=despliega&v5=despliega&v6=despliega&v10=0&v13=&v14=&v25=1805&v26=0" target="_blank" className="bg-white border-2 border-blue-200 text-dairy-blue py-6 px-4 rounded-lg text-center shadow-sm hover:bg-blue-50 transition cursor-pointer block">
+                                    <i className="ph ph-truck text-3xl mb-2"></i><br/>Proselacsa Logística
+                                </a>
+                                <div className="bg-white border-2 border-green-200 text-dairy-green py-6 px-4 rounded-lg text-center shadow-sm relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-dairy-green text-white text-[10px] px-2 py-1 rounded-bl">Digital</div>
+                                    <i className="ph ph-desktop text-3xl mb-2"></i><br/>DAIRYCOM
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-12 border-t border-gray-100 pt-10">
+                    <h4 className="text-center font-bold text-gray-400 mb-6 uppercase tracking-widest text-sm">Afiliaciones y Respaldos Institucionales</h4>
+                    <div className="flex flex-wrap justify-center gap-12 opacity-60">
+                        <div className="flex items-center space-x-2 grayscale hover:grayscale-0 transition-all duration-300">
+                            <i className="ph ph-certificate text-3xl text-dairy-blue"></i>
+                            <span className="font-bold text-xl text-gray-700">CANILEC</span>
+                        </div>
+                        <div className="flex items-center space-x-2 grayscale hover:grayscale-0 transition-all duration-300">
+                            <i className="ph ph-shield-check text-3xl text-dairy-blue"></i>
+                            <span className="font-bold text-xl text-gray-700">FEMELECHE</span>
+                        </div>
+                        <div className="flex items-center space-x-2 grayscale hover:grayscale-0 transition-all duration-300">
+                            <i className="ph ph-buildings text-3xl text-dairy-blue"></i>
+                            <span className="font-bold text-xl text-gray-700">CANACO SERYTUR LEÓN</span>
+                        </div>
+                        <div className="flex items-center space-x-2 grayscale hover:grayscale-0 transition-all duration-300">
+                            <i className="ph ph-plant text-3xl text-dairy-blue"></i>
+                            <span className="font-bold text-xl text-gray-700">CLUSTER ALIMENTOS GTO</span>
+                        </div>
+                        <div className="flex items-center space-x-2 grayscale hover:grayscale-0 transition-all duration-300">
+                            <i className="ph ph-medal text-3xl text-dairy-blue"></i>
+                            <span className="font-bold text-xl text-gray-700">MARCA GTO</span>
+                        </div>
+                        <div className="flex items-center space-x-2 grayscale hover:grayscale-0 transition-all duration-300">
+                            <i className="ph ph-handshake text-3xl text-dairy-blue"></i>
+                            <span className="font-bold text-xl text-gray-700">EMPRESA LEGALMENTE<br/>RESPONSABLE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        /* --- REPARACIÓN DE ODOO --- */
+        const Productos = ({ openModal }) => {
             const [stockOdoo, setStockOdoo] = useState("Consultando ERP...");
             const [precioOdoo, setPrecioOdoo] = useState("");
 
             useEffect(() => {
-                fetch(`${API_BASE_URL}/api/estoque/LDP-DA01`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.stock !== undefined) {
-                            // El backend ya hace la conversión, aquí solo mostramos "sacos" y el precio resultante
-                            setStockOdoo(`${Math.floor(data.stock)} sacos disponibles`);
-                            setPrecioOdoo(`$${data.precio_mxn.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN / Saco`);
+                const consultarOdoo = async () => {
+                    try {
+                        const res = await fetch("https://dairycom-api.onrender.com/api/estoque/LDP-DA01");
+                        if (!res.ok) throw new Error("Error de conexión");
+                        const data = await res.json();
+                        
+                        if (data && data.stock !== undefined) {
+                            setStockOdoo(`${data.stock} sacos en León`);
+                            setPrecioOdoo(`$${data.precio_mxn} MXN / Saco`);
                         } else {
                             setStockOdoo("Stock por confirmar");
                         }
-                    })
-                    .catch(() => setStockOdoo("Stock por confirmar en CEDIS"));
+                    } catch (error) {
+                        console.error("Error al conectar con Odoo:", error);
+                        setStockOdoo("Stock por confirmar en CEDIS");
+                    }
+                };
+                consultarOdoo();
             }, []);
 
             const currentProducts = [
@@ -203,11 +373,17 @@
                     name: "Leche Descremada en Polvo (NFDM / SMP)", 
                     brand: "DairyAmerica",
                     origin: "Importación (EE.UU.)", 
-                    format: "Saco 25 kg", 
-                    desc: "Nonfat Dry Milk Grado A, proceso Spray. Ideal para aportar sólidos lácteos no grasos.",
+                    format: "Saco 25 kg (55.115 lbs)", 
+                    desc: "Nonfat Dry Milk Grado A, proceso Spray. Ideal para aportar sólidos lácteos no grasos, optimizar el rendimiento y cuajado en quesería, yogur, helados y panificación.",
                     image: "./image_2cccac.png",
                     ficha: "FICHA TECNICA LDP-DA.pdf" 
                 }
+            ];
+
+            const futureProducts = [
+                "Leche Entera en Polvo (WMP)", "Suero Dulce de Leche", "Suero Desmineralizado", 
+                "Lactosa Malla 100/200", "Mantequilla Industrial", "Proteínas Lácteas (WPC 34/80)", 
+                "Caseína Renina", "Mezclas Lácteas Económicas"
             ];
 
             return (
@@ -215,6 +391,9 @@
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
                             <h2 className="text-3xl font-bold text-dairy-blue">Catálogo de Productos</h2>
+                            <button onClick={() => openModal('cotizar')} className="hidden sm:block bg-dairy-blue text-white px-6 py-2 rounded font-semibold hover:bg-blue-900 transition">
+                                Solicitar Cotización General
+                            </button>
                         </div>
                         
                         <div className="mb-12">
@@ -222,17 +401,31 @@
                             
                             {currentProducts.map((p, i) => (
                                 <div key={i} className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col md:flex-row mb-6">
+                                    
                                     <div className="md:w-2/5 bg-white p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-gray-200 relative min-h-[300px]">
-                                        <img src={p.image} alt={p.name} className="max-h-80 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300" onError={(e)=>{e.target.style.display='none';}} />
+                                        <img 
+                                            src={p.image} 
+                                            alt={p.name} 
+                                            className="max-h-80 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300" 
+                                            onError={(e)=>{
+                                                e.target.style.display='none'; 
+                                                e.target.nextSibling.style.display='flex';
+                                            }} 
+                                        />
+                                        <div className="flex-col items-center justify-center text-center w-full h-full" style={{display: 'none'}}>
+                                            <i className="ph ph-package text-8xl text-gray-300 mb-4"></i>
+                                            <p className="text-sm text-gray-500">Imagen no encontrada<br/>(Verifica archivo image_2cccac.png)</p>
+                                        </div>
                                     </div>
+
                                     <div className="md:w-3/5 p-8 flex flex-col justify-between">
                                         <div>
-                                            <div className="flex items-center space-x-3 mb-3 flex-wrap gap-y-2">
+                                            <div className="flex items-center space-x-3 mb-3">
                                                 <span className="bg-blue-100 text-dairy-blue text-xs font-extrabold px-3 py-1 rounded uppercase tracking-wider border border-blue-200">
                                                     Marca: {p.brand}
                                                 </span>
                                                 <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded whitespace-nowrap flex items-center">
-                                                    <i className="ph ph-package mr-1"></i> {stockOdoo}
+                                                    <i className="ph ph-lightning mr-1"></i> {stockOdoo}
                                                 </span>
                                                 {precioOdoo && (
                                                     <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded whitespace-nowrap flex items-center">
@@ -240,43 +433,365 @@
                                                     </span>
                                                 )}
                                             </div>
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-4">{p.name}</h3>
-                                            <p className="text-gray-600 mb-6 text-lg">{p.desc}</p>
+                                            <h3 className="text-2xl font-bold text-gray-900 leading-tight mb-4">{p.name}</h3>
+                                            <p className="text-gray-600 mb-6 text-lg"><span className="font-semibold text-gray-800">{p.brand}®</span> - {p.desc}</p>
+                                            
+                                            <div className="grid grid-cols-2 gap-4 mb-8 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                                <div><span className="font-semibold text-gray-700 block mb-1">SKU ERP:</span> {p.sku}</div>
+                                                <div><span className="font-semibold text-gray-700 block mb-1">Presentación:</span> {p.format}</div>
+                                                <div className="col-span-2"><span className="font-semibold text-gray-700 block mb-1">Origen y Certificación:</span> {p.origin} - Grado A Alimenticio</div>
+                                            </div>
                                         </div>
                                         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                                            <button onClick={() => setCurrentPage('comprar')} className="flex-1 bg-dairy-green text-white py-3 px-4 rounded-lg font-bold hover:bg-green-600 transition shadow flex justify-center items-center">
-                                                <i className="ph ph-credit-card mr-2 text-xl"></i> Pagar Pedido
+                                            <button onClick={() => openModal('cotizar')} className="flex-1 bg-dairy-blue text-white py-3 px-4 rounded-lg font-bold hover:bg-blue-900 transition shadow flex justify-center items-center">
+                                                <i className="ph ph-clipboard-text mr-2 text-xl"></i> Cotizar Producto
                                             </button>
-                                            <a href={`./${p.ficha}`} download={p.ficha} className="flex-1 bg-white border-2 border-dairy-blue text-dairy-blue py-3 px-2 rounded-lg font-bold hover:bg-blue-50 transition shadow flex justify-center items-center">
-                                                <i className="ph ph-file-pdf mr-2 text-xl"></i> Ficha Técnica
+                                            <a href={`./${p.ficha}`} download={p.ficha} className="flex-1 bg-white border-2 border-dairy-blue text-dairy-blue py-3 px-2 rounded-lg font-bold hover:bg-blue-50 transition shadow flex flex-col justify-center items-center text-center leading-tight">
+                                                <span className="flex items-center"><i className="ph ph-file-pdf mr-2 text-xl"></i> Ficha Técnica</span>
+                                                <span className="text-[10px] text-gray-500 mt-0.5 font-mono">{p.ficha}</span>
                                             </a>
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
+
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-400 mb-6 flex items-center border-b pb-2"><i className="ph ph-clock mr-2 text-2xl"></i> Próximos Lanzamientos en Plataforma</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {futureProducts.map((name, i) => (
+                                    <div key={i} className="bg-gray-100 border border-dashed border-gray-300 rounded-lg p-5 flex items-center justify-between text-gray-500">
+                                        <span className="text-sm font-medium">{name}</span>
+                                        <i className="ph ph-lock-key opacity-50 text-xl"></i>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             );
         };
 
+        const Observatorio = () => {
+            const trendsGDT = [
+                { name: "Leche Entera en Polvo (WMP)", price: "$3,589 USD/MT", dir: "down" },
+                { name: "Leche Descremada (SMP)", price: "$3,368 USD/MT", dir: "down" },
+                { name: "Grasa Butírica (AMF)", price: "$6,601 USD/MT", dir: "down" },
+                { name: "Mantequilla Industrial", price: "$5,516 USD/MT", dir: "down" },
+                { name: "Queso Cheddar", price: "$4,471 USD/MT", dir: "down" },
+                { name: "Lactosa", price: "$1,702 USD/MT", dir: "up" },
+            ];
+
+            const trendsCME = [
+                { name: "Queso Bloques (CME Block)", priceOriginal: "$1.87 USD/lb", priceKg: "$4.12 USD/kg (~$70.00 MXN/kg)", dir: "up" },
+                { name: "Queso Barriles (CME Barrels)", priceOriginal: "$1.89 USD/lb", priceKg: "$4.17 USD/kg (~$70.85 MXN/kg)", dir: "up" },
+                { name: "Mantequilla AA (CME Butter)", priceOriginal: "$3.05 USD/lb", priceKg: "$6.72 USD/kg (~$114.30 MXN/kg)", dir: "stable" },
+                { name: "Leche Descremada (CME NDM)", priceOriginal: "$1.18 USD/lb", priceKg: "$2.60 USD/kg (~$44.25 MXN/kg)", dir: "down" },
+                { name: "Suero en Polvo (CME Dry Whey)", priceOriginal: "$0.45 USD/lb", priceKg: "$0.99 USD/kg (~$16.85 MXN/kg)", dir: "stable" },
+            ];
+
+            return (
+                <div className="py-12 bg-white fade-in min-h-screen">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between">
+                            <div>
+                                <h2 className="text-3xl font-bold text-dairy-blue flex items-center"><i className="ph ph-globe-hemisphere-west mr-3"></i> Observatorio de Mercado</h2>
+                                <p className="text-gray-600 mt-2">Referencias estimadas internacionales con valor agregado en precio por kilo para la toma de decisiones en México.</p>
+                            </div>
+                            
+                            <div className="mt-4 md:mt-0 bg-gray-50 border border-gray-200 px-5 py-3 rounded-xl flex flex-col items-center justify-center shadow-sm">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tipo de Cambio Ref.</span>
+                                <span className="text-xl font-mono font-bold text-green-600">$19.50 MXN/USD</span>
+                                <span className="text-[9px] text-gray-400 mt-1"><i className="ph ph-google-logo"></i> Google Finance</span>
+                            </div>
+                        </div>
+
+                        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 text-sm text-yellow-800">
+                            <strong>Aviso:</strong> Los precios publicados son referencias internacionales (USD/MT y USD/kg) y no constituyen una oferta comercial. Los precios definitivos dependerán de disponibilidad, volumen y logística a León, Gto.
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                <div className="bg-dairy-blue text-white px-6 py-4 flex justify-between items-center">
+                                    <div>
+                                        <h3 className="font-bold flex items-center"><i className="ph ph-chart-polar mr-2 text-xl"></i> Global Dairy Trade (Oceanía)</h3>
+                                        <p className="text-xs text-blue-200">Precios spot internacionales</p>
+                                    </div>
+                                    <a href="https://www.globaldairytrade.info/" target="_blank" className="text-xs border border-blue-400 text-blue-200 px-2 py-1 rounded hover:bg-blue-800 transition">Ver Fuente Oficial</a>
+                                </div>
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Insumo</th>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Precio (GDT)</th>
+                                            <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Tend.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {trendsGDT.map((t, i) => (
+                                            <tr key={i} className="hover:bg-gray-50">
+                                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{t.name}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{t.price}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-center text-xl">
+                                                    {t.dir === 'up' && <i className="ph ph-trend-up text-red-500" title="Alza"></i>}
+                                                    {t.dir === 'down' && <i className="ph ph-trend-down text-green-500" title="Baja"></i>}
+                                                    {t.dir === 'stable' && <i className="ph ph-minus text-gray-400" title="Estable"></i>}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                <div className="bg-gray-800 text-white px-6 py-4">
+                                    <h3 className="font-bold flex items-center"><i className="ph ph-newspaper mr-2 text-xl"></i> Mercado CME (EE.UU.) - Convertido a Kilos</h3>
+                                    <p className="text-xs text-gray-300">Vía Cheese Reporter (Valor en $/kg)</p>
+                                </div>
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Insumo</th>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Conversión por Kilo ($/kg)</th>
+                                            <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Tend.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {trendsCME.map((t, i) => (
+                                            <tr key={i} className="hover:bg-gray-50">
+                                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                                    {t.name} <br/><span className="text-[11px] text-gray-400 font-mono">({t.priceOriginal})</span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-dairy-blue font-bold font-mono">{t.priceKg}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-center text-xl">
+                                                    {t.dir === 'up' && <i className="ph ph-trend-up text-red-500" title="Alza"></i>}
+                                                    {t.dir === 'down' && <i className="ph ph-trend-down text-green-500" title="Baja"></i>}
+                                                    {t.dir === 'stable' && <i className="ph ph-minus text-gray-400" title="Estable"></i>}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Academia = () => (
+            <div className="py-16 bg-gray-900 text-white fade-in min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 border-b border-gray-700 pb-6">
+                        <div>
+                            <h2 className="text-3xl font-bold flex items-center"><i className="ph ph-youtube-logo text-red-500 mr-3 text-5xl"></i> Academia Multimedia</h2>
+                            <p className="text-gray-400 mt-2 text-lg">Recursos, aplicaciones y tendencias para la industria alimentaria.</p>
+                        </div>
+                        <a href="https://www.youtube.com/@Proselacsa_FS" target="_blank" className="mt-4 sm:mt-0 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white px-6 py-3 rounded transition flex items-center font-bold">
+                            Visitar Canal de YouTube <i className="ph ph-arrow-up-right ml-2"></i>
+                        </a>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700 flex flex-col hover:border-gray-500 transition">
+                            <div className="p-8 text-center flex-grow flex flex-col justify-center bg-gray-800 border-b border-gray-700">
+                                <i className="ph ph-play-circle text-7xl text-gray-400 mb-4 mx-auto"></i>
+                                <span className="text-xs font-bold text-dairy-green uppercase tracking-wider mb-2 block">Corporativo</span>
+                                <h3 className="font-bold text-2xl mb-2 text-white">10 Años PSL LOG</h3>
+                                <p className="text-gray-400">Conoce la infraestructura logística que respalda a DAIRYCOM.</p>
+                            </div>
+                            <a href="https://youtu.be/_OjmNSWvXqs?si=kCQmVrSgYvi91oi1" target="_blank" className="bg-gray-700 text-white text-center py-4 font-bold hover:bg-red-600 transition flex justify-center items-center">
+                                <i className="ph ph-youtube-logo mr-2 text-xl"></i> Ver Video en YouTube
+                            </a>
+                        </div>
+
+                        <div className="bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700 flex flex-col hover:border-gray-500 transition">
+                            <div className="p-8 text-center flex-grow flex flex-col justify-center bg-gray-800 border-b border-gray-700">
+                                <i className="ph ph-student text-7xl text-gray-400 mb-4 mx-auto"></i>
+                                <span className="text-xs font-bold text-dairy-green uppercase tracking-wider mb-2 block">Academia</span>
+                                <h3 className="font-bold text-2xl mb-2 text-white">Breve Historia del Queso</h3>
+                                <p className="text-gray-400">Un recorrido histórico por los productos lácteos.</p>
+                            </div>
+                            <a href="https://youtu.be/KAq6ODqxmMs?si=JDVcUrOLnafssmsY" target="_blank" className="bg-gray-700 text-white text-center py-4 font-bold hover:bg-red-600 transition flex justify-center items-center">
+                                <i className="ph ph-youtube-logo mr-2 text-xl"></i> Ver Video en YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const Envios = ({ showToast }) => {
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                showToast("Cotización generada. Un asesor te contactará pronto.");
+            };
+
+            return (
+                <div className="py-16 bg-gray-50 fade-in min-h-screen flex justify-center items-start">
+                    <div className="max-w-2xl w-full px-4 mt-8">
+                        <div className="bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+                            <div className="text-center mb-10">
+                                <div className="inline-block p-5 bg-blue-50 rounded-full mb-4">
+                                    <i className="ph ph-truck text-5xl text-dairy-blue"></i>
+                                </div>
+                                <h2 className="text-3xl font-bold text-gray-900">Cotiza tu Envío Logístico</h2>
+                                <p className="text-gray-500 text-base mt-3">Calcula el costo logístico aproximado desde nuestro CEDIS en León hacia las instalaciones de tu planta.</p>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Punto de Origen</label>
+                                    <div className="flex items-center bg-gray-100 border border-gray-200 rounded-lg p-3 text-gray-600">
+                                        <i className="ph ph-map-pin text-xl mr-2 text-dairy-green"></i>
+                                        <span className="text-base font-medium">CEDIS Proselacsa (León, Gto.)</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Estado de Destino</label>
+                                    <select required className="w-full border border-gray-300 rounded-lg p-3 text-base focus:border-dairy-blue focus:ring-1 focus:ring-dairy-blue outline-none bg-white">
+                                        <option value="">Selecciona un Estado...</option>
+                                        <option>Aguascalientes</option>
+                                        <option>Ciudad de México</option>
+                                        <option>Estado de México</option>
+                                        <option>Guanajuato</option>
+                                        <option>Jalisco</option>
+                                        <option>Michoacán</option>
+                                        <option>Querétaro</option>
+                                        <option>San Luis Potosí</option>
+                                        <option>Zacatecas</option>
+                                        <option>Otro (Especificar al asesor)</option>
+                                    </select>
+                                </div>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Volumen a Transportar</label>
+                                        <div className="relative">
+                                            <input required type="number" min="25" step="25" placeholder="Ej. 1000" className="w-full border border-gray-300 rounded-lg p-3 text-base focus:border-dairy-blue focus:ring-1 outline-none" />
+                                            <span className="absolute right-4 top-3 text-gray-400 text-base font-medium">kg</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Insumo</label>
+                                        <select className="w-full border border-gray-300 rounded-lg p-3 text-base focus:border-dairy-blue focus:ring-1 outline-none bg-white">
+                                            <option>Leche Descremada (SMP)</option>
+                                            <option>Leche Entera (WMP)</option>
+                                            <option>Suero o Derivados</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" className="w-full bg-dairy-blue text-white font-bold py-4 rounded-lg hover:bg-blue-900 transition text-lg mt-6 flex justify-center items-center">
+                                    <i className="ph ph-calculator mr-2 text-2xl"></i> Calcular Tarifa Logística
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Contacto = ({ showToast }) => {
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                showToast("Mensaje enviado correctamente a ventas@proselacsa.com");
+            };
+
+            return (
+                <div className="py-16 bg-white fade-in min-h-screen">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16">
+                        <div>
+                            <h2 className="text-4xl font-bold text-dairy-blue mb-6">Contacto y Asesoría Técnica</h2>
+                            <p className="text-gray-600 mb-10 text-lg leading-relaxed">
+                                ¿Necesitas optimizar el rendimiento de tu producción con leche en polvo? Nuestro equipo de ingenieros de alimentos está listo para asesorarte con fichas técnicas y formulaciones específicas para tu industria.
+                            </p>
+                            
+                            <div className="space-y-8">
+                                <div className="flex items-start">
+                                    <div className="bg-blue-50 p-4 rounded-xl text-dairy-blue mr-5">
+                                        <i className="ph ph-map-pin text-3xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-xl text-gray-900">Ubicación CEDIS Central</h4>
+                                        <p className="text-base text-gray-600 mt-2">León, Guanajuato, México.<br/>Cobertura logística principal: El Bajío y Los Altos de Jalisco.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start">
+                                    <div className="bg-blue-50 p-4 rounded-xl text-dairy-blue mr-5">
+                                        <i className="ph ph-envelope text-3xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-xl text-gray-900">Correo Corporativo</h4>
+                                        <p className="text-base text-gray-600 mt-2">ventas@proselacsa.com</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start">
+                                    <div className="bg-blue-50 p-4 rounded-xl text-dairy-blue mr-5">
+                                        <i className="ph ph-phone text-3xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-xl text-gray-900">Teléfono Directo</h4>
+                                        <p className="text-base text-gray-600 mt-2">479 104 5539</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 p-10 rounded-2xl border border-gray-200 shadow-lg">
+                            <h3 className="text-2xl font-bold text-gray-800 mb-8">Envíanos un mensaje</h3>
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">Nombre o Empresa</label>
+                                    <input required type="text" className="w-full border border-gray-300 rounded-lg p-3 text-base focus:border-dairy-blue outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">Correo Corporativo</label>
+                                    <input required type="email" className="w-full border border-gray-300 rounded-lg p-3 text-base focus:border-dairy-blue outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">Teléfono / WhatsApp</label>
+                                    <input required type="tel" className="w-full border border-gray-300 rounded-lg p-3 text-base focus:border-dairy-blue outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">Requerimiento Específico</label>
+                                    <textarea required rows="4" className="w-full border border-gray-300 rounded-lg p-3 text-base focus:border-dairy-blue outline-none resize-none"></textarea>
+                                </div>
+                                <button type="submit" className="w-full bg-dairy-green text-white font-bold py-4 rounded-lg hover:bg-green-600 transition text-lg mt-2 shadow">
+                                    Enviar Consulta
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        /* --- REPARACIÓN DE PASARELA DE PAGOS --- */
         const Comprar = ({ showToast }) => {
-            const requestPaymentLink = async (provider) => {
-                showToast(`Generando enlace seguro con ${provider}...`);
+            const handleCopy = (text, type) => {
+                navigator.clipboard.writeText(text);
+                showToast(`${type} copiada al portapapeles`);
+            };
+
+            const handlePagoTarjeta = async () => {
+                showToast("Conectando con la pasarela de pagos segura...");
                 try {
-                    const response = await fetch(`${API_BASE_URL}/api/pagar/${provider}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ amount: 1950.00, currency: "MXN", description: "Saco Leche en Polvo 25kg DAIRYCOM" })
+                    const res = await fetch("https://dairycom-api.onrender.com/api/crear-pago", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sku: "LDP-DA01", cantidad: 1 }) 
                     });
-                    const data = await response.json();
-                    if(data.payment_url) {
-                        window.location.href = data.payment_url;
+                    
+                    if (!res.ok) throw new Error("Fallo en la conexión");
+                    const data = await res.json();
+                    
+                    if (data && data.url) {
+                        window.location.href = data.url; // Redirige al link de pago
                     } else {
-                        showToast(`El servicio de ${provider} está en configuración.`);
+                        showToast("El servidor de pagos no devolvió un enlace válido.");
                     }
                 } catch (error) {
-                    showToast(`Error al conectar con ${provider}. Intente más tarde.`);
+                    console.error("Error al iniciar pago:", error);
+                    showToast("No se pudo conectar con el servidor de pagos. Intente más tarde.");
                 }
             };
 
@@ -285,31 +800,58 @@
                     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center mb-12">
                             <h2 className="text-4xl font-bold text-dairy-blue mb-4">Portal de Compra Segura</h2>
-                            <p className="text-gray-600 text-lg">Seleccione el método de pago (MXN) para liquidar su pedido.</p>
+                            <p className="text-gray-600 text-lg">Seleccione el método de pago para liquidar su pedido u orden de venta Odoo.</p>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-10">
-                            {/* Pago Manual */}
-                            <div className="bg-white rounded-2xl shadow-xl border-t-8 border-dairy-blue overflow-hidden relative p-10">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4">Transferencia / SPEI</h3>
-                                <p className="text-base text-gray-600 mb-8">Pago directo a cuenta empresarial.</p>
-                                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 space-y-5">
-                                    <div><p className="text-xs font-bold text-gray-500 uppercase">Beneficiario</p><p className="font-bold text-gray-900 text-lg">PROSELACSA</p></div>
-                                    <div><p className="text-xs font-bold text-gray-500 uppercase">Banco</p><p className="font-semibold text-dairy-blue text-lg">BBVA</p></div>
-                                    <div className="flex justify-between items-center"><p className="font-mono font-bold text-dairy-blue text-lg">CLABE: 012222001175491212</p></div>
+                            <div className="bg-white rounded-2xl shadow-xl border-t-8 border-dairy-blue overflow-hidden relative">
+                                <div className="absolute top-6 right-6 bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded uppercase tracking-wider">Activo</div>
+                                <div className="p-10">
+                                    <div className="flex items-center mb-8">
+                                        <i className="ph ph-bank text-5xl text-dairy-blue mr-4"></i>
+                                        <h3 className="text-2xl font-bold text-gray-900">Transferencia / SPEI</h3>
+                                    </div>
+                                    <p className="text-base text-gray-600 mb-8 leading-relaxed">Realice su pago directamente a nuestra cuenta bancaria empresarial para liberar su pedido desde el CEDIS.</p>
+                                    
+                                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 space-y-5">
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Beneficiario Legal</p>
+                                            <p className="font-bold text-gray-900 text-lg">PRODUCTOS Y SERVICIOS LACTEOS</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Institución Bancaria</p>
+                                            <p className="font-semibold text-dairy-blue text-lg">BANCO BBVA</p>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Número de Cuenta</p>
+                                                <p className="font-mono text-gray-800 font-bold text-lg">0117549121</p>
+                                            </div>
+                                            <button onClick={() => handleCopy('0117549121', 'Cuenta')} className="text-gray-400 hover:text-dairy-green bg-gray-100 p-2 rounded"><i className="ph ph-copy text-xl"></i></button>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">CLABE Interbancaria (SPEI)</p>
+                                                <p className="font-mono font-bold text-dairy-blue text-lg">012222001175491212</p>
+                                            </div>
+                                            <button onClick={() => handleCopy('012222001175491212', 'CLABE')} className="text-gray-400 hover:text-dairy-green bg-gray-100 p-2 rounded"><i className="ph ph-copy text-xl"></i></button>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-center text-gray-500 mt-8 font-medium">
+                                        <i className="ph ph-warning-circle mr-1 text-yellow-500"></i> Favor de enviar su comprobante de pago por WhatsApp para agilizar el despacho.
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Pasarelas de Pago */}
-                            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 relative overflow-hidden flex flex-col p-10 justify-center items-center text-center">
-                                <h3 className="text-2xl font-bold text-gray-800 mb-4">Pago en Línea</h3>
-                                <p className="text-base text-gray-500 mb-10">Tarjetas de crédito, débito o saldo digital.</p>
-                                <div className="w-full space-y-4">
-                                    <button onClick={() => requestPaymentLink('clip')} className="w-full bg-[#FF4F00] text-white font-bold py-4 rounded-lg hover:bg-orange-600 transition flex justify-center items-center text-lg">
-                                        <i className="ph ph-credit-card mr-2 text-2xl"></i> Pagar con Clip (Tarjetas)
-                                    </button>
-                                    <button onClick={() => requestPaymentLink('paypal')} className="w-full bg-[#003087] text-white font-bold py-4 rounded-lg hover:bg-blue-900 transition flex justify-center items-center text-lg">
-                                        <i className="ph ph-paypal-logo mr-2 text-2xl"></i> Pagar con PayPal
+                            <div className="bg-white rounded-2xl shadow-xl border-t-8 border-dairy-green relative overflow-hidden flex flex-col">
+                                <div className="absolute top-6 right-6 bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded uppercase tracking-wider">Nuevo</div>
+                                <div className="p-10 flex-grow flex flex-col justify-center items-center text-center">
+                                    <i className="ph ph-credit-card text-7xl text-dairy-green mb-6"></i>
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Pago con Tarjeta / PayPal</h3>
+                                    <p className="text-base text-gray-500 mb-10 leading-relaxed">Conecte de forma segura con nuestra pasarela de pagos. Aceptamos las principales tarjetas de crédito y plataformas para proteger su compra B2B.</p>
+                                    
+                                    <button onClick={handlePagoTarjeta} className="w-full bg-dairy-green text-white font-bold py-4 rounded-lg hover:bg-green-600 transition shadow-lg flex justify-center items-center text-lg">
+                                        <i className="ph ph-shield-check mr-2 text-2xl"></i> Iniciar Pago Seguro
                                     </button>
                                 </div>
                             </div>
@@ -319,7 +861,115 @@
             );
         };
 
-        const LeadModal = ({closeModal}) => <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"><div className="bg-white p-8 rounded-lg shadow-xl text-center"><h3 className="text-xl font-bold mb-4">Cotización</h3><p className="mb-6">Por favor contáctenos por WhatsApp para cotizaciones personalizadas.</p><button onClick={closeModal} className="bg-dairy-blue text-white px-6 py-2 rounded">Cerrar</button></div></div>;
+        const LeadModal = ({ closeModal, initialTab, showToast }) => {
+            const [activeTab, setActiveTab] = useState(initialTab || 'cotizar');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                closeModal();
+                const mensaje = activeTab === 'cotizar' 
+                    ? "¡Solicitud de cotización enviada! Un asesor te contactará con los precios."
+                    : "¡Sugerencia registrada! Tu feedback alimenta el crecimiento de nuestro catálogo.";
+                showToast(mensaje);
+            };
+
+            return (
+                <div className="fixed inset-0 bg-gray-900/80 flex items-center justify-center z-[100] p-4 fade-in backdrop-blur-sm overflow-y-auto">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden relative border-t-8 border-dairy-green my-8">
+                        <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition z-10 bg-gray-100 rounded-full p-2">
+                            <i className="ph ph-x text-2xl"></i>
+                        </button>
+                        
+                        <div className="flex bg-gray-50 border-b border-gray-200">
+                            <button 
+                                onClick={() => setActiveTab('cotizar')}
+                                className={`flex-1 py-4 text-center font-bold text-lg border-b-4 transition ${activeTab === 'cotizar' ? 'border-dairy-green text-dairy-blue bg-white' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                            >
+                                <i className="ph ph-shopping-cart mr-2"></i> Solicitar Cotización
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('sugerir')}
+                                className={`flex-1 py-4 text-center font-bold text-lg border-b-4 transition ${activeTab === 'sugerir' ? 'border-dairy-blue text-dairy-blue bg-white' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                            >
+                                <i className="ph ph-lightbulb mr-2"></i> Proponer Insumos
+                            </button>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="p-8 space-y-6 text-sm">
+                            {activeTab === 'cotizar' && (
+                                <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                                    <label className="block font-bold text-dairy-blue mb-3 text-base">¿Qué deseas cotizar hoy? (Stock CEDIS León)</label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700 font-medium">
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="w-5 h-5 rounded text-dairy-blue" /> <span>Leche Descremada (SMP)</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="w-5 h-5 rounded text-dairy-blue" /> <span>Leche Entera (WMP)</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="w-5 h-5 rounded text-dairy-blue" /> <span>Suero Dulce de Leche</span></label>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'sugerir' && (
+                                <div className="bg-amber-50 p-5 rounded-xl border border-amber-100">
+                                    <label className="block font-bold text-amber-900 mb-2 text-base">¿Qué insumos requieres a futuro?</label>
+                                    <p className="text-amber-800 text-xs mb-4">Ayúdanos a armar nuestro catálogo para ti.</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-700 font-medium">
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="w-5 h-5 rounded text-amber-600" /> <span>Grasa Butírica (AMF)</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="w-5 h-5 rounded text-amber-600" /> <span>Lactosa Malla 100/200</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="w-5 h-5 rounded text-amber-600" /> <span>Proteínas Lácteas (WPC)</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="w-5 h-5 rounded text-amber-600" /> <span>Mantequilla Industrial</span></label>
+                                    </div>
+                                    <div className="mt-4">
+                                        <input type="text" placeholder="¿Otro? Especifica aquí..." className="w-full border border-amber-200 rounded p-2 focus:border-amber-400 outline-none bg-white" />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block font-bold text-gray-700 mb-2">Frecuencia de Compra</label>
+                                    <select required className="w-full border border-gray-300 rounded-lg p-3 focus:border-dairy-blue outline-none bg-white">
+                                        <option value="">Selecciona...</option><option>Spot (Única)</option><option>Semanal</option><option>Quincenal</option><option>Mensual</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block font-bold text-gray-700 mb-2">Volumen Estimado por Pedido</label>
+                                    <select required className="w-full border border-gray-300 rounded-lg p-3 focus:border-dairy-blue outline-none bg-white">
+                                        <option value="">Selecciona...</option><option>Menos de 1 Tonelada</option><option>1 a 5 Ton (Medio Mayoreo)</option><option>5 a 20 Ton (Industrial)</option><option>Más de 20 Ton</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                                <div>
+                                    <label className="block font-bold text-gray-700 mb-2">Nombre de la Empresa</label>
+                                    <input required type="text" placeholder="Razón Social o Marca" className="w-full border border-gray-300 rounded-lg p-3 focus:border-dairy-blue outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block font-bold text-gray-700 mb-2">Nombre del Contacto</label>
+                                    <input required type="text" placeholder="Ej. Juan Pérez" className="w-full border border-gray-300 rounded-lg p-3 focus:border-dairy-blue outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block font-bold text-gray-700 mb-2">Correo Corporativo</label>
+                                    <input required type="email" placeholder="correo@empresa.com" className="w-full border border-gray-300 rounded-lg p-3 focus:border-dairy-blue outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block font-bold text-gray-700 mb-2">Teléfono / WhatsApp</label>
+                                    <input required type="tel" placeholder="A 10 dígitos" className="w-full border border-gray-300 rounded-lg p-3 focus:border-dairy-blue outline-none" />
+                                </div>
+                            </div>
+
+                            <button type="submit" className={`w-full text-white font-bold py-4 rounded-xl transition shadow-xl mt-4 flex justify-center items-center text-lg ${activeTab === 'cotizar' ? 'bg-dairy-green hover:bg-green-600' : 'bg-dairy-blue hover:bg-blue-900'}`}>
+                                <i className="ph ph-paper-plane-tilt mr-2 text-2xl"></i> 
+                                {activeTab === 'cotizar' ? 'Enviar Solicitud a Ventas' : 'Enviar Propuesta al Observatorio'}
+                            </button>
+                            
+                            <p className="text-xs text-center text-gray-400 font-medium mt-4">
+                                <i className="ph ph-shield-check mr-1"></i> Tus datos están protegidos y serán registrados en nuestro sistema ERP.
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
