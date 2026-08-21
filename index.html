@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -63,6 +63,7 @@
 
         const App = () => {
             const [currentPage, setCurrentPage] = useState('home');
+            const [comprarPrefill, setComprarPrefill] = useState({ monto: '', descripcion: 'Compra de Insumos Lácteos DAIRYCOM' });
             const [toastMsg, setToastMsg] = useState('');
             const [modalConfig, setModalConfig] = useState({ isOpen: false, activeTab: 'cotizar' });
 
@@ -134,12 +135,12 @@
                     <main className="flex-grow">
                         {currentPage === 'home' && <Home setCurrentPage={setCurrentPage} openModal={openModal} />}
                         {currentPage === 'nosotros' && <Nosotros />}
-                        {currentPage === 'productos' && <Productos openModal={openModal} />}
+                        {currentPage === 'productos' && <Productos openModal={openModal} setCurrentPage={setCurrentPage} setComprarPrefill={setComprarPrefill} />}
                         {currentPage === 'mercado' && <Observatorio />}
                         {currentPage === 'academia' && <Academia />}
                         {currentPage === 'envios' && <Envios showToast={showToast} />}
                         {currentPage === 'contacto' && <Contacto showToast={showToast} />}
-                        {currentPage === 'comprar' && <Comprar showToast={showToast} />}
+                        {currentPage === 'comprar' && <Comprar showToast={showToast} initialMonto={comprarPrefill.monto} initialDescripcion={comprarPrefill.descripcion} />}
                     </main>
 
                     {/* Footer */}
@@ -377,24 +378,41 @@
         );
 
         /* SECCIÓN: PRODUCTOS (INYECCIÓN DE API ODOO) */
-        const Productos = ({ openModal }) => {
+        const Productos = ({ openModal, setCurrentPage, setComprarPrefill }) => {
             const [stockOdoo, setStockOdoo] = useState("Consultando ERP...");
             const [precioOdoo, setPrecioOdoo] = useState("");
+            const [precioPorSaco, setPrecioPorSaco] = useState(0);
+            const [odooError, setOdooError] = useState("");
+            const [esManual, setEsManual] = useState(false);
+            const [limiteCompraDirecta, setLimiteCompraDirecta] = useState(10);
+            const [cantidad, setCantidad] = useState(1);
 
             useEffect(() => {
-                // LLamada exclusiva al API de Odoo para obtener el stock de LDP-DA01 sin romper el diseño
+                // LLamada exclusiva al API de Odoo (o al modo manual) para obtener el stock de LDP-DA01
                 fetch("https://dairycom-api.onrender.com/api/estoque/LDP-DA01")
                     .then(res => res.json())
                     .then(data => {
-                        if(data.stock !== undefined) {
-                            setStockOdoo(`${data.stock} sacos en León`);
-                            setPrecioOdoo(`$${data.precio_mxn} MXN / Saco`);
+                        if (data.stock_sacos !== undefined) {
+                            const kgPorSaco = data.kg_por_saco || 25;
+                            const precioSaco = (Number(data.precio_kg) || 0) * kgPorSaco;
+                            setStockOdoo(`${data.stock_sacos} sacos (${data.stock_kg} kg) en León`);
+                            setPrecioOdoo(`$${precioSaco.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN / Saco ($${data.precio_kg} MXN/kg)`);
+                            setPrecioPorSaco(precioSaco);
+                            setLimiteCompraDirecta(data.limite_sacos_compra_directa || 10);
+                            setEsManual(!!data.manual);
+                            if (data.nota) setOdooError(data.nota);
                         } else {
                             setStockOdoo("Stock por confirmar");
+                            setOdooError(data.error || "Respuesta inesperada del servidor");
                         }
                     })
-                    .catch(() => setStockOdoo("Stock por confirmar en CEDIS"));
+                    .catch((err) => {
+                        setStockOdoo("Stock por confirmar en CEDIS");
+                        setOdooError(`No se pudo contactar al servidor: ${err.message}`);
+                    });
             }, []);
+
+            const excedeLimite = cantidad > limiteCompraDirecta;
 
             const currentProducts = [
                 { 
@@ -420,10 +438,31 @@
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
                             <h2 className="text-3xl font-bold text-dairy-blue">Catálogo de Productos</h2>
-                            <button onClick={() => openModal('cotizar')} className="hidden sm:block bg-dairy-blue text-white px-6 py-2 rounded font-semibold hover:bg-blue-900 transition">
-                                Solicitar Cotización General
-                            </button>
+                            <div className="hidden sm:flex gap-3">
+                                <button onClick={() => openModal('sugerir')} className="bg-white border-2 border-dairy-blue text-dairy-blue px-5 py-2 rounded font-semibold hover:bg-blue-50 transition">
+                                    Proponer Insumo
+                                </button>
+                                <button onClick={() => openModal('cotizar')} className="bg-dairy-blue text-white px-6 py-2 rounded font-semibold hover:bg-blue-900 transition">
+                                    Solicitar Cotización General
+                                </button>
+                            </div>
                         </div>
+
+                        {odooError && esManual && (
+                            <div className="mb-8 bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded-lg p-4 flex items-start">
+                                <i className="ph ph-info text-xl mr-3 mt-0.5"></i>
+                                <div><span className="font-bold">Inventario actualizado manualmente por el equipo de ventas.</span> Los datos en línea directo con Odoo estarán disponibles próximamente.</div>
+                            </div>
+                        )}
+                        {odooError && !esManual && (
+                            <div className="mb-8 bg-amber-50 border border-amber-300 text-amber-800 text-sm rounded-lg p-4 flex items-start">
+                                <i className="ph ph-warning-circle text-xl mr-3 mt-0.5"></i>
+                                <div>
+                                    <span className="font-bold block mb-1">El inventario en tiempo real de Odoo no está disponible ahora mismo.</span>
+                                    Se muestran datos de referencia. Detalle técnico: {odooError}
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="mb-12">
                             <h3 className="text-xl font-bold text-gray-700 mb-6 flex items-center"><i className="ph ph-check-circle text-dairy-green mr-2 text-2xl"></i> Disponibles Hoy (CEDIS León)</h3>
@@ -465,15 +504,49 @@
                                             <h3 className="text-2xl font-bold text-gray-900 leading-tight mb-4">{p.name}</h3>
                                             <p className="text-gray-600 mb-6 text-lg"><span className="font-semibold text-gray-800">{p.brand}®</span> - {p.desc}</p>
                                             
-                                            <div className="grid grid-cols-2 gap-4 mb-8 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                            <div className="grid grid-cols-2 gap-4 mb-6 text-sm bg-gray-50 p-4 rounded-lg border border-gray-100">
                                                 <div><span className="font-semibold text-gray-700 block mb-1">SKU ERP:</span> {p.sku}</div>
                                                 <div><span className="font-semibold text-gray-700 block mb-1">Presentación:</span> {p.format}</div>
                                                 <div className="col-span-2"><span className="font-semibold text-gray-700 block mb-1">Origen y Certificación:</span> {p.origin} - Grado A Alimenticio</div>
                                             </div>
+
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <label className="font-semibold text-gray-700 text-sm">Cantidad (sacos 25kg):</label>
+                                                <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                                                    <button type="button" onClick={() => setCantidad(c => Math.max(1, c - 1))} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold">−</button>
+                                                    <input type="number" min="1" value={cantidad} onChange={e => setCantidad(Math.max(1, Number(e.target.value) || 1))} className="w-16 text-center py-2 outline-none" />
+                                                    <button type="button" onClick={() => setCantidad(c => c + 1)} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold">+</button>
+                                                </div>
+                                                {precioPorSaco > 0 && (
+                                                    <span className="text-sm text-gray-500 ml-auto">Subtotal: <span className="font-bold text-dairy-blue">${(precioPorSaco * cantidad).toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></span>
+                                                )}
+                                            </div>
+                                            {excedeLimite && (
+                                                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-3">
+                                                    <i className="ph ph-info mr-1"></i> Compras de más de {limiteCompraDirecta} sacos requieren cotización (precios y logística preferenciales para mayoreo).
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                                            {excedeLimite ? (
+                                                <button onClick={() => openModal('cotizar')} className="flex-1 bg-dairy-blue text-white py-3 px-4 rounded-lg font-bold hover:bg-blue-900 transition shadow flex justify-center items-center">
+                                                    <i className="ph ph-clipboard-text mr-2 text-xl"></i> Solicitar Cotización de Mayoreo
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => {
+                                                        setComprarPrefill({
+                                                            monto: precioPorSaco > 0 ? (precioPorSaco * cantidad).toFixed(2) : '',
+                                                            descripcion: `${p.name} x${cantidad} saco(s)`
+                                                        });
+                                                        setCurrentPage('comprar');
+                                                    }}
+                                                    className="flex-1 bg-dairy-green text-white py-3 px-4 rounded-lg font-bold hover:bg-green-600 transition shadow flex justify-center items-center">
+                                                    <i className="ph ph-shopping-cart mr-2 text-xl"></i> Comprar Ahora
+                                                </button>
+                                            )}
                                             <button onClick={() => openModal('cotizar')} className="flex-1 bg-dairy-blue text-white py-3 px-4 rounded-lg font-bold hover:bg-blue-900 transition shadow flex justify-center items-center">
-                                                <i className="ph ph-clipboard-text mr-2 text-xl"></i> Cotizar Producto
+                                                <i className="ph ph-clipboard-text mr-2 text-xl"></i> Cotizar
                                             </button>
                                             <a href={`./${p.ficha}`} download={p.ficha} className="flex-1 bg-white border-2 border-dairy-blue text-dairy-blue py-3 px-2 rounded-lg font-bold hover:bg-blue-50 transition shadow flex flex-col justify-center items-center text-center leading-tight">
                                                 <span className="flex items-center"><i className="ph ph-file-pdf mr-2 text-xl"></i> Ficha Técnica</span>
@@ -849,9 +922,9 @@
             );
         };
 
-        const Comprar = ({ showToast }) => {
-            const [monto, setMonto] = useState('');
-            const [descripcion, setDescripcion] = useState('Compra de Insumos Lácteos DAIRYCOM');
+        const Comprar = ({ showToast, initialMonto, initialDescripcion }) => {
+            const [monto, setMonto] = useState(initialMonto || '');
+            const [descripcion, setDescripcion] = useState(initialDescripcion || 'Compra de Insumos Lácteos DAIRYCOM');
             const [pagando, setPagando] = useState(null); // 'clip' | 'paypal' | null
 
             const handleCopy = (text, type) => {
