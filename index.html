@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -63,7 +63,7 @@
 
         const App = () => {
             const [currentPage, setCurrentPage] = useState('home');
-            const [comprarPrefill, setComprarPrefill] = useState({ monto: '', descripcion: 'Compra de Insumos Lácteos DAIRYCOM' });
+            const [comprarPrefill, setComprarPrefill] = useState({ monto: '', descripcion: 'Compra de Insumos Lácteos DAIRYCOM', cantidad: 0 });
             const [toastMsg, setToastMsg] = useState('');
             const [modalConfig, setModalConfig] = useState({ isOpen: false, activeTab: 'cotizar' });
 
@@ -75,6 +75,24 @@
             const openModal = (tab) => {
                 setModalConfig({ isOpen: true, activeTab: tab });
             };
+
+            // Detecta el regreso de Clip/PayPal (?pago=exitoso|error|cancelado) para
+            // avisarle al cliente qué pasó, ya que hoy el sitio no recibe confirmación
+            // automática de la pasarela (eso requeriría configurar webhooks server-side).
+            useEffect(() => {
+                const params = new URLSearchParams(window.location.search);
+                const pago = params.get('pago');
+                if (pago === 'exitoso') {
+                    showToast("¡Pago recibido! Un asesor de DAIRYCOM confirmará tu pedido en breve.");
+                } else if (pago === 'error') {
+                    showToast("Hubo un problema al procesar tu pago. Intenta de nuevo o contáctanos.");
+                } else if (pago === 'cancelado') {
+                    showToast("Pago cancelado. Tu pedido quedó registrado por si quieres retomarlo.");
+                }
+                if (pago) {
+                    window.history.replaceState({}, '', window.location.pathname);
+                }
+            }, []);
 
             return (
                 <div className="min-h-screen flex flex-col relative">
@@ -140,7 +158,7 @@
                         {currentPage === 'academia' && <Academia />}
                         {currentPage === 'envios' && <Envios showToast={showToast} />}
                         {currentPage === 'contacto' && <Contacto showToast={showToast} />}
-                        {currentPage === 'comprar' && <Comprar showToast={showToast} initialMonto={comprarPrefill.monto} initialDescripcion={comprarPrefill.descripcion} />}
+                        {currentPage === 'comprar' && <Comprar showToast={showToast} initialMonto={comprarPrefill.monto} initialDescripcion={comprarPrefill.descripcion} initialCantidad={comprarPrefill.cantidad} />}
                     </main>
 
                     {/* Footer */}
@@ -537,7 +555,8 @@
                                                     onClick={() => {
                                                         setComprarPrefill({
                                                             monto: precioPorSaco > 0 ? (precioPorSaco * cantidad).toFixed(2) : '',
-                                                            descripcion: `${p.name} x${cantidad} saco(s)`
+                                                            descripcion: `${p.name} x${cantidad} saco(s)`,
+                                                            cantidad: cantidad
                                                         });
                                                         setCurrentPage('comprar');
                                                     }}
@@ -922,10 +941,16 @@
             );
         };
 
-        const Comprar = ({ showToast, initialMonto, initialDescripcion }) => {
+        const Comprar = ({ showToast, initialMonto, initialDescripcion, initialProducto, initialCantidad }) => {
             const [monto, setMonto] = useState(initialMonto || '');
             const [descripcion, setDescripcion] = useState(initialDescripcion || 'Compra de Insumos Lácteos DAIRYCOM');
             const [pagando, setPagando] = useState(null); // 'clip' | 'paypal' | null
+            const [nombre, setNombre] = useState('');
+            const [empresa, setEmpresa] = useState('');
+            const [email, setEmail] = useState('');
+            const [telefono, setTelefono] = useState('');
+            const [entrega, setEntrega] = useState('Recoger en CEDIS León');
+            const [direccion, setDireccion] = useState('');
 
             const handleCopy = (text, type) => {
                 navigator.clipboard.writeText(text);
@@ -938,21 +963,51 @@
                     showToast("Ingresa un monto válido antes de continuar");
                     return;
                 }
+                if (!nombre || !email || !telefono) {
+                    showToast("Completa tus datos de contacto (nombre, correo y teléfono) antes de pagar");
+                    return;
+                }
+                if (entrega === 'Envío a domicilio' && !direccion) {
+                    showToast("Escribe la dirección de entrega");
+                    return;
+                }
                 setPagando(metodo);
                 try {
+                    // 1. Registrar el pedido (quién es, qué compra, a dónde entregar) ANTES de cobrar
+                    const resPedido = await fetch(`${API_BASE_URL}/api/pedido`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            nombre, empresa, email, telefono,
+                            producto: descripcion,
+                            cantidad_sacos: initialCantidad || 0,
+                            monto: amount,
+                            metodo_entrega: entrega,
+                            direccion,
+                            metodo_pago: metodo
+                        })
+                    });
+                    const dataPedido = await resPedido.json();
+                    if (!dataPedido.success) {
+                        showToast(`No se pudo registrar el pedido: ${dataPedido.error || 'intenta de nuevo'}`);
+                        setPagando(null);
+                        return;
+                    }
+
+                    // 2. Generar el link de pago
                     const res = await fetch(`${API_BASE_URL}/api/pagar/${metodo}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ amount, currency: "MXN", description: descripcion })
+                        body: JSON.stringify({ amount, currency: "MXN", description: `${descripcion} - Folio ${dataPedido.pedido_id}` })
                     });
                     const data = await res.json();
                     if (data.payment_url) {
                         window.location.href = data.payment_url;
                     } else {
-                        showToast(`No se pudo generar el link de pago: ${data.error || 'Error desconocido'}`);
+                        showToast(`Tu pedido ${dataPedido.pedido_id} quedó registrado, pero no se pudo generar el link de pago: ${data.error || 'Error desconocido'}. Un asesor te contactará.`);
                     }
                 } catch (err) {
-                    showToast(`Error al conectar con el servidor de pagos: ${err.message}`);
+                    showToast(`Error al conectar con el servidor: ${err.message}`);
                 } finally {
                     setPagando(null);
                 }
@@ -964,6 +1019,25 @@
                         <div className="text-center mb-12">
                             <h2 className="text-4xl font-bold text-dairy-blue mb-4">Portal de Compra Segura</h2>
                             <p className="text-gray-600 text-lg">Seleccione el método de pago para liquidar su pedido u orden de venta Odoo.</p>
+                        </div>
+
+                        <div className="max-w-md mx-auto mb-6 bg-white rounded-xl shadow p-6 border border-gray-200">
+                            <h3 className="font-bold text-gray-800 mb-4">Tus datos de contacto y entrega</h3>
+                            <div className="space-y-3">
+                                <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre completo *" className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-dairy-blue outline-none" />
+                                <input type="text" value={empresa} onChange={e => setEmpresa(e.target.value)} placeholder="Empresa (opcional)" className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-dairy-blue outline-none" />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Correo *" className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-dairy-blue outline-none" />
+                                    <input type="tel" value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="Teléfono *" className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-dairy-blue outline-none" />
+                                </div>
+                                <select value={entrega} onChange={e => setEntrega(e.target.value)} className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-dairy-blue outline-none bg-white">
+                                    <option>Recoger en CEDIS León</option>
+                                    <option>Envío a domicilio</option>
+                                </select>
+                                {entrega === 'Envío a domicilio' && (
+                                    <textarea value={direccion} onChange={e => setDireccion(e.target.value)} rows="2" placeholder="Dirección completa de entrega *" className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-dairy-blue outline-none resize-none"></textarea>
+                                )}
+                            </div>
                         </div>
 
                         <div className="max-w-md mx-auto mb-10 bg-white rounded-xl shadow p-6 border border-gray-200">
