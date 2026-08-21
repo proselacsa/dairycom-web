@@ -218,14 +218,24 @@
 
         /* ==================== COMPONENTES DE PÁGINA ==================== */
 
-        const Home = ({ setCurrentPage, openModal }) => (
+        const Home = ({ setCurrentPage, openModal }) => {
+            const [tipoCambio, setTipoCambio] = useState(17.50);
+
+            useEffect(() => {
+                fetch(`${API_BASE_URL}/api/tipo-cambio`)
+                    .then(res => res.json())
+                    .then(data => { if (data.usd_mxn) setTipoCambio(data.usd_mxn); })
+                    .catch(() => {});
+            }, []);
+
+            return (
             <div className="fade-in">
                 {/* Ticker Superior con Tipo de Cambio */}
                 <div className="bg-gray-900 text-blue-200 text-xs py-2 px-4 border-b border-gray-800 overflow-x-auto whitespace-nowrap">
                     <div className="max-w-7xl mx-auto flex justify-between items-center space-x-8">
                         <span className="flex items-center"><i className="ph ph-pulse text-dairy-green mr-1.5 animate-pulse"></i> <strong>GDT Index (Event 406):</strong> 3,979 USD/MT (-2.8%)</span>
-                        <span className="flex items-center"><i className="ph ph-chart-line-up text-dairy-accent mr-1.5"></i> <strong>CME Block Cheese:</strong> $70.00 MXN/kg</span>
-                        <span className="flex items-center text-green-400"><i className="ph ph-currency-circle-dollar mr-1.5"></i> <strong>USD/MXN:</strong> 19.50 (Google Finance)</span>
+                        <span className="flex items-center"><i className="ph ph-chart-line-up text-dairy-accent mr-1.5"></i> <strong>CME Block Cheese:</strong> ${(4.12 * tipoCambio).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})} MXN/kg</span>
+                        <span className="flex items-center text-green-400"><i className="ph ph-currency-circle-dollar mr-1.5"></i> <strong>USD/MXN:</strong> {tipoCambio.toFixed(2)}</span>
                         <span className="flex items-center"><i className="ph ph-factory text-blue-400 mr-1.5"></i> <strong>CEDIS León:</strong> Operando con normalidad</span>
                     </div>
                 </div>
@@ -252,11 +262,11 @@
                             </p>
                             
                             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
-                                <button onClick={() => openModal('cotizar')} className="bg-dairy-green text-white px-8 py-4 rounded-lg font-bold hover:bg-green-600 transition shadow-lg flex items-center justify-center text-lg border-2 border-dairy-green">
-                                    <i className="ph ph-shopping-cart mr-2 text-2xl"></i> Solicitar Cotización (Stock)
+                                <button onClick={() => setCurrentPage('productos')} className="bg-dairy-green text-white px-8 py-4 rounded-lg font-bold hover:bg-green-600 transition shadow-lg flex items-center justify-center text-lg border-2 border-dairy-green">
+                                    <i className="ph ph-shopping-cart mr-2 text-2xl"></i> Ir al Catálogo y Comprar
                                 </button>
-                                <button onClick={() => openModal('sugerir')} className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white hover:text-dairy-blue transition shadow-lg flex items-center justify-center text-lg">
-                                    <i className="ph ph-lightbulb mr-2 text-2xl"></i> Proponer Nuevos Insumos
+                                <button onClick={() => openModal('cotizar')} className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white hover:text-dairy-blue transition shadow-lg flex items-center justify-center text-lg">
+                                    <i className="ph ph-clipboard-text mr-2 text-2xl"></i> Solicitar Cotización
                                 </button>
                             </div>
 
@@ -394,6 +404,7 @@
                 </div>
             </div>
         );
+        };
 
         /* SECCIÓN: PRODUCTOS (INYECCIÓN DE API ODOO) */
         const Productos = ({ openModal, setCurrentPage, setComprarPrefill }) => {
@@ -595,6 +606,21 @@
 
         /* SECCIÓN: OBSERVATORIO */
         const Observatorio = () => {
+            const [tipoCambio, setTipoCambio] = useState(17.50);
+            const [tcFecha, setTcFecha] = useState('');
+
+            useEffect(() => {
+                fetch(`${API_BASE_URL}/api/tipo-cambio`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.usd_mxn) {
+                            setTipoCambio(data.usd_mxn);
+                            setTcFecha(data.fecha || '');
+                        }
+                    })
+                    .catch(() => {}); // si falla, se queda el valor de respaldo
+            }, []);
+
             const trendsGDT = [
                 { name: "Leche Entera en Polvo (WMP)", price: "$3,589 USD/MT", dir: "down" },
                 { name: "Leche Descremada (SMP)", price: "$3,368 USD/MT", dir: "down" },
@@ -604,12 +630,14 @@
                 { name: "Lactosa", price: "$1,702 USD/MT", dir: "up" },
             ];
 
+            // El precio en USD/kg es un dato de mercado (CME), no depende del tipo de cambio.
+            // Solo la conversión a MXN se recalcula en vivo con la variable tipoCambio.
             const trendsCME = [
-                { name: "Queso Bloques (CME Block)", priceOriginal: "$1.87 USD/lb", priceKg: "$4.12 USD/kg (~$70.00 MXN/kg)", dir: "up" },
-                { name: "Queso Barriles (CME Barrels)", priceOriginal: "$1.89 USD/lb", priceKg: "$4.17 USD/kg (~$70.85 MXN/kg)", dir: "up" },
-                { name: "Mantequilla AA (CME Butter)", priceOriginal: "$3.05 USD/lb", priceKg: "$6.72 USD/kg (~$114.30 MXN/kg)", dir: "stable" },
-                { name: "Leche Descremada (CME NDM)", priceOriginal: "$1.18 USD/lb", priceKg: "$2.60 USD/kg (~$44.25 MXN/kg)", dir: "down" },
-                { name: "Suero en Polvo (CME Dry Whey)", priceOriginal: "$0.45 USD/lb", priceKg: "$0.99 USD/kg (~$16.85 MXN/kg)", dir: "stable" },
+                { name: "Queso Bloques (CME Block)", priceOriginal: "$1.87 USD/lb", usdKg: 4.12, dir: "up" },
+                { name: "Queso Barriles (CME Barrels)", priceOriginal: "$1.89 USD/lb", usdKg: 4.17, dir: "up" },
+                { name: "Mantequilla AA (CME Butter)", priceOriginal: "$3.05 USD/lb", usdKg: 6.72, dir: "stable" },
+                { name: "Leche Descremada (CME NDM)", priceOriginal: "$1.18 USD/lb", usdKg: 2.60, dir: "down" },
+                { name: "Suero en Polvo (CME Dry Whey)", priceOriginal: "$0.45 USD/lb", usdKg: 0.99, dir: "stable" },
             ];
 
             return (
@@ -623,8 +651,8 @@
                             
                             <div className="mt-4 md:mt-0 bg-gray-50 border border-gray-200 px-5 py-3 rounded-xl flex flex-col items-center justify-center shadow-sm">
                                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tipo de Cambio Ref.</span>
-                                <span className="text-xl font-mono font-bold text-green-600">$19.50 MXN/USD</span>
-                                <span className="text-[9px] text-gray-400 mt-1"><i className="ph ph-google-logo"></i> Google Finance</span>
+                                <span className="text-xl font-mono font-bold text-green-600">${tipoCambio.toFixed(2)} MXN/USD</span>
+                                <span className="text-[9px] text-gray-400 mt-1"><i className="ph ph-bank"></i> {tcFecha ? `Fuente: BCE, ${tcFecha}` : 'Actualizando...'}</span>
                             </div>
                         </div>
 
@@ -684,7 +712,7 @@
                                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                                     {t.name} <br/><span className="text-[11px] text-gray-400 font-mono">({t.priceOriginal})</span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-dairy-blue font-bold font-mono">{t.priceKg}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-dairy-blue font-bold font-mono">${t.usdKg.toFixed(2)} USD/kg (~${(t.usdKg * tipoCambio).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})} MXN/kg)</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-center text-xl">
                                                     {t.dir === 'up' && <i className="ph ph-trend-up text-red-500" title="Alza"></i>}
                                                     {t.dir === 'down' && <i className="ph ph-trend-down text-green-500" title="Baja"></i>}
